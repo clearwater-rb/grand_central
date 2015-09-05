@@ -1,6 +1,6 @@
 # GrandCentral
 
-GrandCentral is a state-management and action-dispatching library for Opal apps. It was created with Clearwater apps in mind, but there's no reason you couldn't use it with other types of Opal apps.
+GrandCentral is a state-management and action-dispatching library for Opal apps. It was created with [Clearwater](https://github.com/clearwater-rb/clearwater) apps in mind, but there's no reason you couldn't use it with other types of Opal apps.
 
 GrandCentral is based on ideas similar to [Redux](http://rackt.github.io/redux/). You have a central store that holds all your state. This state is updated via a reducer block when you dispatch actions to the store.
 
@@ -39,9 +39,15 @@ store = GrandCentral::Store.new(a: 1, b: 2) do |state, action|
     state
   end
 end
+
+store.dispatch :a
+store.dispatch :b
+store.dispatch "You can dispatch anything you want, really"
 ```
 
-Your actions can be anything. We used symbols above, but we also provide a class called `GrandCentral::Action` to help you set up your actions:
+### Actions
+
+The actions you dispatch to the store can be anything. We used symbols in the above example, but GrandCentral also provides a class called `GrandCentral::Action` to help you set up your actions:
 
 ```ruby
 module Actions
@@ -86,6 +92,24 @@ store = GrandCentral::Store.new(todos: []) do |state, action|
   end
 end
 ```
+
+### Performing actions on dispatch
+
+You may want your application to do something in response to a dispatch. For example, in a Clearwater app, you might want to re-render the application when the store's state has changed:
+
+```ruby
+store = GrandCentral::Store.new(todos: []) do |state, action|
+  # ...
+end
+
+app = Clearwater::Application.new(component: Layout.new)
+
+store.on_dispatch do |old_state, new_state|
+  app.render unless old_state.equal?(new_state)
+end
+```
+
+Notice the `unless old_state.equal?(new_state)` clause. This is one of the reasons we recommend you update state by returning a new value instead of mutating it in-place. It allows you to do cache invalidation in O(1) time.
 
 ## Development
 
