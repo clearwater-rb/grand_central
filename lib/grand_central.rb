@@ -5,4 +5,6 @@ require "grand_central/action"
 module GrandCentral
 end
 
-Opal.append_path File.expand_path('..', __FILE__)
+if RUBY_ENGINE != 'opal'
+  Opal.append_path File.expand_path('..', __FILE__)
+end
