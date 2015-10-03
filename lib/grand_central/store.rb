@@ -11,15 +11,19 @@ module GrandCentral
     def dispatch action
       old_state = state
       @state = @reducer.call state, action
-      @dispatch_callbacks.each do |callback|
-        callback.call old_state, state
-      end
+      run_callbacks old_state, state
       self
     end
 
     def on_dispatch &block
       @dispatch_callbacks << block
       self
+    end
+
+    def run_callbacks old_state, new_state
+      @dispatch_callbacks.each do |callback|
+        callback.call old_state, new_state
+      end
     end
   end
 end
