@@ -11,7 +11,7 @@ module GrandCentral
     def dispatch action
       old_state = state
       @state = @reducer.call state, action
-      run_callbacks old_state, state
+      run_callbacks old_state, state, action
       self
     end
 
@@ -20,9 +20,9 @@ module GrandCentral
       self
     end
 
-    def run_callbacks old_state, new_state
+    def run_callbacks old_state, new_state, action=nil
       @dispatch_callbacks.each do |callback|
-        callback.call old_state, new_state
+        callback.call old_state, new_state, action
       end
     end
   end

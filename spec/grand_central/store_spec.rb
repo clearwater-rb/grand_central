@@ -43,13 +43,14 @@ module GrandCentral
       expect(runs).to eq 2
     end
 
-    it 'passes old state and new state to dispatch callback' do
+    it 'passes old state, new state, and action to dispatch callback' do
       store = Store.new([1]) do |state, action|
         state + [2]
       end
-      store.on_dispatch do |old, new|
+      store.on_dispatch do |old, new, action|
         expect(old).to eq [1]
         expect(new).to eq [1, 2]
+        expect(action).to eq :thing
       end
 
       store.dispatch :thing
