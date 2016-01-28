@@ -16,5 +16,17 @@ module GrandCentral
     def self.create &block
       with_attributes &block
     end
+
+    def then &block
+      promise.then &block
+    end
+
+    def fail &block
+      promise.fail &block
+    end
+
+    def always
+      promise.always &block
+    end
   end
 end

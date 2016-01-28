@@ -12,7 +12,7 @@ module GrandCentral
       old_state = state
       @state = @reducer.call state, action
       run_callbacks old_state, state, action
-      self
+      action
     end
 
     def on_dispatch &block

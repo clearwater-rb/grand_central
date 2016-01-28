@@ -55,5 +55,10 @@ module GrandCentral
 
       store.dispatch :thing
     end
+
+    it 'returns the action after the dispatch' do
+      store = Store.new(1) {}
+      expect(store.dispatch(:thing)).to eq :thing
+    end
   end
 end
