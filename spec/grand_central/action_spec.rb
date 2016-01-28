@@ -10,6 +10,13 @@ module GrandCentral
       expect(action.foo).to eq :bar
     end
 
+    it 'generates a new action subclass with no attributes' do
+      my_class = Action.create
+      action = my_class.new
+
+      expect(action).to be_a Action
+    end
+
     it 'takes a class body' do
       action_class = Action.with_attributes(:foo) do
         def baz

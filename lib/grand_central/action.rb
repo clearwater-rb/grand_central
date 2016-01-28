@@ -12,5 +12,9 @@ module GrandCentral
 
       klass
     end
+
+    def self.create &block
+      with_attributes &block
+    end
   end
 end
