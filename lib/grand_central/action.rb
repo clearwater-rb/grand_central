@@ -25,7 +25,7 @@ module GrandCentral
       promise.fail &block
     end
 
-    def always
+    def always &block
       promise.always &block
     end
   end
