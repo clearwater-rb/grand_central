@@ -23,6 +23,16 @@ module GrandCentral
 
         expect { store.redo }.not_to change { store.state }
       end
+
+      it 'increments the version' do
+        expect(store.current_version).to eq 0
+
+        store.dispatch :increment
+        expect(store.current_version).to eq 1
+
+        store.dispatch :increment
+        expect(store.current_version).to eq 2
+      end
     end
 
     context 'on rollback' do
@@ -44,6 +54,18 @@ module GrandCentral
 
       it 'does not change state if there is nothing to rollback to' do
         expect { store.rollback }.not_to change { store.state }
+      end
+
+      it 'decrements the version' do
+        3.times do
+          store.dispatch :increment
+        end
+
+        store.rollback
+        expect(store.current_version).to eq 2
+
+        store.rollback
+        expect(store.current_version).to eq 1
       end
     end
 
@@ -88,6 +110,49 @@ module GrandCentral
 
         expect(store.state).to be current
       end
+
+      it 'increments the current version' do
+        store.dispatch :increment
+
+        store.rollback
+        store.redo
+
+        expect(store.current_version).to eq 1
+      end
+    end
+
+    it 'tracks total versions' do
+      3.times do
+        store.dispatch :increment
+      end
+      store.rollback
+
+      # Initial state + 3 dispatches = 4 versions
+      expect(store.total_versions).to eq 4
+    end
+
+    it 'can go to a specific version' do
+      3.times do
+        store.dispatch :increment
+      end
+
+      store.go_to_version 1
+      expect(store.current_version).to eq 1
+      expect(store.state).to eq 1
+
+      store.go_to_version 2
+      expect(store.current_version).to eq 2
+      expect(store.state).to eq 2
+    end
+
+    it 'commits to the current version' do
+      3.times do
+        store.dispatch :increment
+      end
+
+      store.commit!
+      expect(store.total_versions).to eq 1
+      expect(store.current_version).to eq 0
     end
   end
 end

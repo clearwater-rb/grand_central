@@ -6,6 +6,10 @@ module GrandCentral
 end
 
 if RUBY_ENGINE != 'opal'
-  require "opal"
-  Opal.append_path File.expand_path('..', __FILE__)
+  # Autodetect Opal
+  begin
+    require "opal"
+    Opal.append_path File.expand_path('..', __FILE__)
+  rescue LoadError => e
+  end
 end
