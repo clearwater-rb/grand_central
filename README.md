@@ -2,7 +2,7 @@
 
 GrandCentral is a state-management and action-dispatching library for Opal apps. It was created with [Clearwater](https://github.com/clearwater-rb/clearwater) apps in mind, but there's no reason you couldn't use it with other types of Opal apps.
 
-GrandCentral is based on ideas similar to [Redux](http://rackt.github.io/redux/). You have a central store that holds all your state. This state is updated via a reducer block when you dispatch actions to the store.
+GrandCentral is based on ideas similar to [Redux](http://rackt.github.io/redux/). You have a central store that holds all your state. This state is updated via a handler block when you dispatch actions to the store.
 
 ## Installation
 
@@ -22,7 +22,7 @@ Or install it yourself as:
 
 ## Usage
 
-First, you'll need a store. You'll need to seed it with initial state and give it a reducer function:
+First, you'll need a store. You'll need to seed it with initial state and give it a handler block:
 
 ```ruby
 require 'grand_central'
@@ -69,7 +69,7 @@ module Actions
 end
 ```
 
-Then your reducer can use these actions to update the state more easily:
+Then your handler can use these actions to update the state more easily:
 
 ```ruby
 store = GrandCentral::Store.new(todos: []) do |state, action|
