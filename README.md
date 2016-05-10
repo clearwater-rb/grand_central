@@ -111,6 +111,78 @@ end
 
 Notice the `unless old_state.equal?(new_state)` clause. This is one of the reasons we recommend you update state by returning a new value instead of mutating it in-place. It allows you to do cache invalidation in O(1) time.
 
+## Models
+
+We can use the `GrandCentral::Model` base class to store our objects:
+
+```ruby
+class Person < GrandCentral::Model
+  attributes(
+    :id,
+    :name,
+    :location,
+  )
+end
+```
+
+This will set up a `Person` class we can instantiate with a hash of attributes:
+
+```ruby
+jamie = Person.new(name: 'Jamie')
+```
+
+### Immutable Models
+
+The attributes of a model cannot be modified once set. That is, there's no way to say `person.name = 'Foo'`. If you need to change the attributes of a model, there's a method called `update` that returns a new instance of the model with the specified attributes:
+
+```ruby
+jamie = Person.new(name: 'Jamie')
+updated_jamie = jamie.update(location: 'Baltimore')
+
+jamie.location         # => nil
+updated_jamie.location # => "Baltimore"
+```
+
+This allows you to use the `update` method in your store's handler without mutating the original reference:
+
+```ruby
+store = GrandCentral::Store.new(person) do |person, action|
+  case action
+  when ChangeLocation
+    person.update(location: action.location)
+  else person
+  end
+end
+```
+
+This keeps each version of your app state intact if you need to roll back to a previous version. In fact, the app state itself can be a `GrandCentral::Model`:
+
+```ruby
+class AppState < GrandCentral::Model
+  attributes(
+    :todos,
+    :people,
+  )
+end
+
+initial_state = AppState.new(
+  todos: [],
+  people: [],
+)
+
+store = GrandCentral::Store.new(initial_state) do |state, action|
+  case action
+  when AddPerson
+    state.update(people: state.people + [action.person])
+  when DeleteTodo
+    state.update(todos: state.todos - [action.todo])
+
+  else
+    state
+  end
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
