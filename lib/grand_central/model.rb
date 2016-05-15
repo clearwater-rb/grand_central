@@ -1,3 +1,5 @@
+require 'set'
+
 module GrandCentral
   class Model
     def self.attributes *attrs
