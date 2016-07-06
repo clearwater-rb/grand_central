@@ -13,6 +13,10 @@ module GrandCentral
     end
 
     def initialize attributes={}
+      unless attributes.respond_to? :[]
+        raise TypeError, "Must pass in a hash or other object that responds to `[]'"
+      end
+
       self.class.attributes.each do |attr|
         instance_variable_set "@#{attr}", attributes[attr]
       end

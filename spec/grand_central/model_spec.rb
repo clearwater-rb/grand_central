@@ -20,6 +20,12 @@ module GrandCentral
         expect(model.bar).to eq 'two'
         expect(model.baz).to be_nil
       end
+
+      it 'raises a TypeError if the value passed in is not subscriptable' do
+        expect {
+          model_class.new(nil)
+        }.to raise_error(TypeError)
+      end
     end
 
     describe :update do
