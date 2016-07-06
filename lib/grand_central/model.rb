@@ -14,7 +14,7 @@ module GrandCentral
 
     def initialize attributes={}
       unless attributes.respond_to? :[]
-        raise TypeError, "Must pass in a hash or other object that responds to `[]'"
+        raise TypeError, "Must pass in a hash or other object that responds to `[]'. Instead received #{attributes.inspect}"
       end
 
       self.class.attributes.each do |attr|
