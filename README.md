@@ -1,6 +1,6 @@
 # GrandCentral
 
-GrandCentral is a state-management and action-dispatching library for Opal apps. It was created with [Clearwater](https://github.com/clearwater-rb/clearwater) apps in mind, but there's no reason you couldn't use it with other types of Opal apps.
+GrandCentral is a state-management and action-dispatching library for Ruby apps. It was created with [Clearwater](https://github.com/clearwater-rb/clearwater) apps in mind, but there's no reason you couldn't use it with other types of Ruby apps.
 
 GrandCentral is based on ideas similar to [Redux](http://rackt.github.io/redux/). You have a central store that holds all your state. This state is updated via a handler block when you dispatch actions to the store.
 
