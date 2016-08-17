@@ -45,6 +45,13 @@ module GrandCentral
 
         expect(model.foo).to eq 1
       end
+
+      it 'returns the same instance if no modifications are made' do
+        model = model_class.new(foo: 1)
+        updated = model.update(foo: 1)
+
+        expect(updated).to be model
+      end
     end
   end
 end

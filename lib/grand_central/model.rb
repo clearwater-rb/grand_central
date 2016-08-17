@@ -23,7 +23,14 @@ module GrandCentral
     end
 
     def update attributes={}
-      self.class.new(to_h.merge(attributes))
+      old_attributes = to_h
+      new_attributes = old_attributes.merge(attributes)
+
+      if new_attributes == old_attributes
+        self
+      else
+        self.class.new(new_attributes)
+      end
     end
 
     def to_h
