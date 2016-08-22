@@ -21,6 +21,14 @@ module GrandCentral
         expect(model.baz).to be_nil
       end
 
+      it 'sets attributes with string keys' do
+        model = model_class.new('foo' => 1, 'bar' => 'two')
+
+        expect(model.foo).to eq 1
+        expect(model.bar).to eq 'two'
+        expect(model.baz).to be_nil
+      end
+
       it 'raises a TypeError if the value passed in is not subscriptable' do
         expect {
           model_class.new(nil)

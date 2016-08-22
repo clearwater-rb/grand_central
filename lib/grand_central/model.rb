@@ -18,7 +18,8 @@ module GrandCentral
       end
 
       self.class.attributes.each do |attr|
-        instance_variable_set "@#{attr}", attributes[attr]
+        value = attributes[attr] || attributes[attr.to_s]
+        instance_variable_set "@#{attr}", value
       end
     end
 
