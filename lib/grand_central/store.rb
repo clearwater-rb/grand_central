@@ -25,5 +25,30 @@ module GrandCentral
         callback.call old_state, new_state, action
       end
     end
+
+    def state_mixin
+      return @state_mixin if defined? @state_mixin
+
+      m = method(:state)
+      @state_mixin = Module.new { define_method(:state, &m) }
+    end
+
+    def dispatcher
+      return @dispatcher if defined? @dispatcher
+
+      m = method(:dispatch)
+      @dispatcher = Module.new { define_method(:dispatch, &m) }
+    end
+
+    def mixin
+      return @mixin if defined? @mixin
+
+      state = state_mixin
+      dispatcher = self.dispatcher
+      @mixin = Module.new do
+        include state
+        include dispatcher
+      end
+    end
   end
 end
