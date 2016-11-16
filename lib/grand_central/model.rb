@@ -12,6 +12,28 @@ module GrandCentral
       @attributes
     end
 
+    def self.deserialize hash, namespace: Object
+      attributes = hash.each_with_object({}) do |(key, value), hash|
+        hash[key] = case value
+                    when Hash
+                      if klass = value['$class']
+                        case klass
+                        when 'Time'
+                          Time.at(value['value'])
+                        else
+                          deserialize value, namespace: namespace
+                        end
+                      else
+                        value
+                      end
+                    else
+                      value
+                    end
+      end
+
+      namespace.const_get(hash.fetch('$class')).new(attributes)
+    end
+
     def initialize attributes={}
       unless attributes.respond_to? :[]
         raise TypeError, "Must pass in a hash or other object that responds to `[]'. Instead received #{attributes.inspect}"
@@ -38,6 +60,35 @@ module GrandCentral
       self.class.attributes.each_with_object({}) do |attr, hash|
         hash[attr] = send(attr)
       end
+    end
+
+    def == other
+      return false if self.class.attributes != other.class.attributes
+
+      self.class.attributes.each do |attr|
+        return false if send(attr) != other.send(attr)
+      end
+
+      true
+    end
+
+    def to_serializable_format
+      serialized = to_h.each_with_object({}) do |(key, value), hash|
+        hash[key] = case value
+                    when Time
+                      {
+                        '$class' => 'Time',
+                        value: value.to_f,
+                      }
+                    when GrandCentral::Model
+                      value.to_h.merge('$class' => value.class.name)
+                    else
+                      value
+                    end
+      end
+
+      serialized['$class'] = self.class.name
+      serialized
     end
   end
 end
