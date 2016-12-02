@@ -3,8 +3,8 @@ require "grand_central/model"
 module GrandCentral
   class Model
     module Subscriptable
-      def self.included(base)
-        base.send(:alias_method, :merge, :update)
+      def merge(other)
+        update(other)
       end
 
       def [](attr)
