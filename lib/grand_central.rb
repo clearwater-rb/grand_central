@@ -2,7 +2,6 @@ require "grand_central/version"
 require "grand_central/store"
 require "grand_central/action"
 require "grand_central/model"
-require "grand_central/store_mixin"
 
 module GrandCentral
 end
