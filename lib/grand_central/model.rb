@@ -64,6 +64,7 @@ module GrandCentral
     end
 
     def == other
+      return true if other.equal? self
       return false if self.class.attributes != other.class.attributes
 
       self.class.attributes.each do |attr|
