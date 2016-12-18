@@ -1,4 +1,6 @@
 require 'grand_central/model'
+require 'json'
+require 'support/namespace'
 
 module GrandCentral
   describe Model do
@@ -8,7 +10,12 @@ module GrandCentral
           :foo,
           :bar,
           :baz,
+          :quux,
         )
+
+        def self.name
+          to_s
+        end
       end
     }
 
@@ -60,6 +67,73 @@ module GrandCentral
 
         expect(updated).to be model
       end
+    end
+
+    describe 'equality' do
+      it 'is equal when the attributes are equal' do
+        time = Time.now
+
+        one = model_class.new(
+          foo: 'omg',
+          bar: time,
+          baz: 1,
+        )
+
+        two = model_class.new(
+          foo: 'omg',
+          bar: time,
+          baz: 1,
+        )
+
+        expect(one).to eq two
+      end
+
+      it 'is not equal when the attributes do not match' do
+        time = Time.now
+
+        one = model_class.new(
+          foo: 'lol',
+          bar: time,
+          baz: 1,
+        )
+
+        two = model_class.new(
+          foo: 'omg',
+          bar: time,
+          baz: 1,
+        )
+
+        expect(one).not_to eq two
+      end
+    end
+
+    it 'serializes and deserializes' do
+      model_class = self.model_class
+      another_model_class = Class.new(GrandCentral::Model) do
+        attributes(:zomg, :lol)
+
+        def self.name
+          to_s
+        end
+      end
+
+      namespace = Namespace.new(
+        'Time' => Time,
+        model_class.name => model_class,
+        another_model_class.name => another_model_class,
+      )
+
+      one = model_class.new(
+        foo: 'lol',
+        bar: Time.new(2016, 11, 16, 12, 4, 56),
+        baz: 1,
+        quux: another_model_class.new(zomg: 1, lol: 'rofl'),
+      )
+
+      serialized = one.to_serializable_format
+      new_one = Model.deserialize(JSON.parse(serialized.to_json), namespace: namespace)
+
+      expect(new_one).to eq one
     end
   end
 end

@@ -1,4 +1,5 @@
 require 'grand_central/action'
+require 'support/namespace'
 
 module GrandCentral
   describe Action do
@@ -60,6 +61,61 @@ module GrandCentral
       expect(then_called).to be_truthy
       expect(fail_called).to be_truthy
       expect(always_called).to be_truthy
+    end
+
+    describe 'serialization' do
+      let(:blank) do
+        Action.create do
+          def self.name
+            'BlankAction'
+          end
+        end
+      end
+      let(:has_attributes) do
+        Action.with_attributes(:foo, :bar) do
+          def self.name
+            'HasAttributes'
+          end
+        end
+      end
+
+      it 'serializes to JSON' do
+        expect(blank.new.to_serializable_format).to eq(
+          '$class' => 'BlankAction'
+        )
+
+        expect(has_attributes.new(1, 'two').to_serializable_format).to eq(
+          '$class' => 'HasAttributes',
+          'foo' => 1,
+          'bar' => 'two',
+        )
+      end
+
+      it 'deserializes from JSON' do
+        namespace = Namespace.new(
+          'BlankAction' => blank,
+          'HasAttributes' => has_attributes,
+        )
+
+        blank_action = Action.deserialize(
+          { '$class' => 'BlankAction' },
+          namespace: namespace,
+        )
+
+        has_attributes_action = Action.deserialize(
+          {
+            '$class' => 'HasAttributes',
+            'foo' => 1,
+            'bar' => 'two',
+          },
+          namespace: namespace
+        )
+
+        expect(blank_action).to be_a blank
+        expect(has_attributes_action).to be_a has_attributes
+        expect(has_attributes_action.foo).to eq 1
+        expect(has_attributes_action.bar).to eq 'two'
+      end
     end
   end
 end
