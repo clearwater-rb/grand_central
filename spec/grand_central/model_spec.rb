@@ -1,5 +1,6 @@
 require 'grand_central/model'
 require 'json'
+require 'support/namespace'
 
 module GrandCentral
   describe Model do
@@ -116,19 +117,11 @@ module GrandCentral
         end
       end
 
-      namespace = Class.new do
-        define_method :initialize do
-          @constants = {
-            'Time' => Time,
-            model_class.name => model_class,
-            another_model_class.name => another_model_class,
-          }
-        end
-
-        def const_get name
-          @constants.fetch(name.to_s)
-        end
-      end.new
+      namespace = Namespace.new(
+        'Time' => Time,
+        model_class.name => model_class,
+        another_model_class.name => another_model_class,
+      )
 
       one = model_class.new(
         foo: 'lol',
