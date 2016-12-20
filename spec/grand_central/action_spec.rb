@@ -1,4 +1,5 @@
 require 'grand_central/action'
+require 'grand_central/store'
 
 module GrandCentral
   describe Action do
@@ -60,6 +61,35 @@ module GrandCentral
       expect(then_called).to be_truthy
       expect(fail_called).to be_truthy
       expect(always_called).to be_truthy
+    end
+
+    it 'can dispatch to a store' do
+      action_class = Action.with_attributes(:foo, :bar)
+      store = Store.new(false) do |state, action|
+        case action
+        when action_class
+          [action.foo, action.bar]
+        else
+          raise "Action is not the expected action class"
+        end
+      end
+      action_class.store = store
+
+      expect(action_class)
+        .to receive(:new)
+        .with(1, 2)
+        .and_call_original
+
+      expect(store)
+        .to receive(:dispatch)
+        .and_call_original
+
+      action = action_class[1].call(2)
+
+      expect(action).to be_a action_class
+      expect(action.foo).to eq 1
+      expect(action.bar).to eq 2
+      expect(store.state).to eq [1, 2]
     end
   end
 end

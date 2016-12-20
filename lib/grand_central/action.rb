@@ -28,5 +28,50 @@ module GrandCentral
     def always &block
       promise.always &block
     end
+
+    class << self
+      attr_writer :store
+    end
+
+    def self.store
+      if self == Action
+        @store
+      else
+        @store || superclass.store
+      end
+    end
+
+    def self.call(*args)
+      Dispatcher.new(self, store, []).call(*args)
+    end
+
+    def self.[](*args)
+      Dispatcher.new(self, store, *args)
+    end
+
+    class Dispatcher
+      def initialize action_class, store, args
+        @action_class = action_class
+        @store = store
+        @args = args
+
+        if store.nil?
+          raise ArgumentError, "No store set for #{action_class}"
+        end
+      end
+
+      def call *args
+        if args.first.class.name == 'Bowser::Event'
+          event = args.first
+          case event.type
+          when 'submit'
+            event.prevent
+          when 'input'
+            args = event.target.value
+          end
+        end
+        @store.dispatch @action_class.new(*@args, *args)
+      end
+    end
   end
 end
