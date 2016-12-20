@@ -46,7 +46,7 @@ module GrandCentral
     end
 
     def self.[](*args)
-      Dispatcher.new(self, store, *args)
+      Dispatcher.new(self, store, args)
     end
 
     class Dispatcher
