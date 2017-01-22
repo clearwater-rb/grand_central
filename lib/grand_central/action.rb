@@ -61,16 +61,37 @@ module GrandCentral
       end
 
       def call *args
+        @store.dispatch @action_class.new(*@args, *handle_bowser_event(args))
+      end
+
+      # Add support for Bowser::Event args. This is so that front-end apps can
+      # handle DOM events in a much more convenient way.
+      def handle_bowser_event args
+        unless RUBY_ENGINE == 'opal'
+          return args
+        end
+
         if args.first.class.name == 'Bowser::Event'
           event = args.first
           case event.type
           when 'submit'
+            # We're modifying a value we received, which is usually a no-no, but
+            # in this case it's the most pragmatic solution I can think of.
             event.prevent
           when 'input'
-            args = event.target.value
+            event.target.value
+          when 'change'
+            element = event.target
+
+            # In hindsight, using Element#type for the tag type was a bad idea.
+            # It means we need to dip into JS to get the damn type property.
+            if element.type == 'input' && `#{element.to_n}.type` == 'checkbox'
+              element.checked?
+            else
+              element.value
+            end
           end
         end
-        @store.dispatch @action_class.new(*@args, *args)
       end
     end
   end
