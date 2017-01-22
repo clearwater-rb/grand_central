@@ -42,14 +42,24 @@ module GrandCentral
     end
 
     def self.call(*args)
-      Dispatcher.new(self, store, []).call(*args)
+      DelayedDispatch.new(self, store, []).call(*args)
     end
 
     def self.[](*args)
-      Dispatcher.new(self, store, args)
+      DelayedDispatch.new(self, store, args)
     end
 
-    class Dispatcher
+    # A DelayedDispatch is an object that represents a dispatch that is intended
+    # to happen later. Arguments can be provided upfront, which will be used as
+    # the first args to the action constructor when the dispatch occurs.
+    #
+    # When you `call` the DelayedDispatch, the arguments given to `call` are
+    # used as the remaining arguments to the action constructor. The action is
+    # created and dispatched to the specified store.
+    #
+    # If you're familiar with functional programming, this is really just a
+    # curried `Action.call`, where the currying only happens once.
+    class DelayedDispatch
       def initialize action_class, store, args
         @action_class = action_class
         @store = store
