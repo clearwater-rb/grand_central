@@ -100,7 +100,11 @@ module GrandCentral
             else
               element.value
             end
+          else
+            args
           end
+        else
+          args
         end
       end
     end
