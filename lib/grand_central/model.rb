@@ -2,6 +2,12 @@ require 'set'
 
 module GrandCentral
   class Model
+    def self.with_attributes *attrs
+      klass = Class.new(self)
+      klass.attributes *attrs
+      klass
+    end
+
     def self.attributes *attrs
       @attributes ||= Set.new
       if attrs.any?

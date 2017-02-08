@@ -12,6 +12,17 @@ module GrandCentral
       end
     }
 
+    describe 'class creation' do
+      it 'can be created with a .with_attributes method' do
+        klass = Model.with_attributes(:foo, :bar, :baz)
+        model = klass.new(foo: 1, bar: 2, baz: 3)
+
+        expect(model.foo).to eq 1
+        expect(model.bar).to eq 2
+        expect(model.baz).to eq 3
+      end
+    end
+
     describe :initialize do
       it 'sets attributes' do
         model = model_class.new(foo: 1, bar: 'two')
