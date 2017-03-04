@@ -42,11 +42,15 @@ module GrandCentral
     end
 
     def self.call(*args)
-      DelayedDispatch.new(self, store, []).call(*args)
+      self[*args].call
     end
 
     def self.[](*args)
       DelayedDispatch.new(self, store, args)
+    end
+
+    def self.to_proc
+      proc { |*args| call *args.flatten(1) }
     end
 
     # A DelayedDispatch is an object that represents a dispatch that is intended
@@ -72,6 +76,10 @@ module GrandCentral
 
       def call *args
         @store.dispatch @action_class.new(*@args, *handle_bowser_event(args))
+      end
+
+      def to_proc
+        proc { |*args| call *args.flatten(1) }
       end
 
       # Add support for Bowser::Event args. This is so that front-end apps can

@@ -91,5 +91,41 @@ module GrandCentral
       expect(action.bar).to eq 2
       expect(store.state).to eq [1, 2]
     end
+
+    it 'can be executed as a block' do
+      klass = Action.with_attributes(:foo, :bar)
+      store = Store.new(nil) do |state, action|
+        case action
+        when klass
+          [action.foo, action.bar]
+        else
+          raise "Action is not the expected action"
+        end
+      end
+      klass.store = store
+
+      # klass.call 1, 2
+
+      [[1, 2]].each(&klass)
+
+      expect(store.state).to eq [1, 2]
+    end
+
+    it 'can have delayed execution as a block' do
+      klass = Action.with_attributes(:foo, :bar)
+      store = Store.new(nil) do |state, action|
+        case action
+        when klass
+          [action.foo, action.bar]
+        else
+          raise "Unexpected action"
+        end
+      end
+      klass.store = store
+
+      [[]].each(&klass[1, 2])
+
+      expect(store.state).to eq [1, 2]
+    end
   end
 end
