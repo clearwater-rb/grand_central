@@ -75,7 +75,7 @@ module GrandCentral
       end
 
       def call *args
-        @store.dispatch @action_class.new(*@args, *handle_bowser_event(args))
+        @store.dispatch @action_class.new(*handle_bowser_event(@args + args))
       end
 
       def to_proc
