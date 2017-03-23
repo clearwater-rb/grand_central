@@ -89,30 +89,34 @@ module GrandCentral
           return args
         end
 
-        if args.first.class.name == 'Bowser::Event'
-          event = args.first
-          case event.type
-          when 'submit'
-            # We're modifying a value we received, which is usually a no-no, but
-            # in this case it's the most pragmatic solution I can think of.
-            event.prevent
-          when 'input'
-            event.target.value
-          when 'change'
-            element = event.target
+        args.map do |arg|
+          if arg.class.name == 'Bowser::Event'
+            event = arg
 
-            # In hindsight, using Element#type for the tag type was a bad idea.
-            # It means we need to dip into JS to get the damn type property.
-            if element.type == 'input' && `#{element.to_n}.type` == 'checkbox'
-              element.checked?
+            case event.type
+            when 'submit'
+              # We're modifying a value we received, which is usually a no-no, but
+              # in this case it's the most pragmatic solution I can think of.
+              event.prevent
+              event
+            when 'input'
+              event.target.value
+            when 'change'
+              element = event.target
+
+              # In hindsight, using Element#type for the tag type was a bad idea.
+              # It means we need to dip into JS to get the damn type property.
+              if element.type == 'input' && `#{element.to_n}.type` == 'checkbox'
+                element.checked?
+              else
+                element.value
+              end
             else
-              element.value
+              arg
             end
           else
-            args
+            arg
           end
-        else
-          args
         end
       end
     end
