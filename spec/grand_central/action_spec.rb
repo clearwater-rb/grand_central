@@ -127,5 +127,15 @@ module GrandCentral
 
       expect(store.state).to eq [1, 2]
     end
+
+    it 'can curry indefinitely' do
+      klass = Action.with_attributes(:a, :b, :c)
+      store = Store.new(0) { |state, action| [action.a, action.b, action.c] }
+      klass.store = store
+
+      action = klass[1][2][3].call
+
+      expect(store.state).to eq [1, 2, 3]
+    end
   end
 end

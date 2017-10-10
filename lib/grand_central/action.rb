@@ -78,6 +78,10 @@ module GrandCentral
         @store.dispatch @action_class.new(*handle_bowser_event(@args + args))
       end
 
+      def [] *args
+        self.class.new @action_class, @store, @args + args
+      end
+
       def to_proc
         proc { |*args| call *args.flatten(1) }
       end
