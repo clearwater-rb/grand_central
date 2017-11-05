@@ -46,7 +46,7 @@ module GrandCentral
     end
 
     def self.[](*args)
-      DelayedDispatch.new(self, store, args)
+      DelayedDispatch.new(self, args)
     end
 
     def self.to_proc
@@ -62,24 +62,28 @@ module GrandCentral
     # created and dispatched to the specified store.
     #
     # If you're familiar with functional programming, this is really just a
-    # curried `Action.call`, where the currying only happens once.
+    # curried `Action.call`, except the invocation is explicit rather than
+    # happening automatically when all of the arguments have been received.
     class DelayedDispatch
-      def initialize action_class, store, args
+      def initialize action_class, args
         @action_class = action_class
-        @store = store
         @args = args
-
-        if store.nil?
-          raise ArgumentError, "No store set for #{action_class}"
-        end
       end
 
       def call *args
-        @store.dispatch @action_class.new(*handle_bowser_event(@args + args))
+        if store.nil?
+          raise ArgumentError, "No store set for #{action_class}"
+        end
+
+        store.dispatch @action_class.new(*handle_bowser_event(@args + args))
       end
 
       def [] *args
-        self.class.new @action_class, @store, @args + args
+        self.class.new @action_class, @args + args
+      end
+
+      def store
+        @action_class.store
       end
 
       def to_proc
