@@ -93,6 +93,87 @@ store = GrandCentral::Store.new(todos: []) do |state, action|
 end
 ```
 
+### Dispatching actions without the store
+
+There may be parts of your app that need to dispatch actions but you don't want them to know about the store itself. In a [Clearwater](https://github.com/clearwater-rb/clearwater) app, for example, your components may need to fire off actions, but you don't want them to know how to get things from the store.
+
+Subclasses of `GrandCentral::Action` have a `store` attribute where you can set the default store to dispatch to:
+
+```ruby
+store = GrandCentral::Store.new(todos: []) do |state, action|
+  # ...
+end
+
+MyAction = GrandCentral::Action.with_attributes(:a, :b, :c)
+MyAction.store = store
+```
+
+To use this default store, you can send the `call` message to the action class itself:
+
+```ruby
+MyAction.call(1, 2, 3) # these arguments correspond to the a, b, and c attributes above
+```
+
+#### Action Currying
+
+You can [curry](https://en.wikipedia.org/wiki/Currying) an action with the `[]` operator instead of `call`. There is a minor difference between action currying and traditional function currying, though: function currying automatically invokes the function once all of the arguments are received, whereas currying a `GrandCentral::Action` will curry until you explicitly invoke it with `call`:
+
+```ruby
+SetAttribute = Action.with_attributes(:attr, :value)
+
+# Returns an action type based on `SetAttribute` with `attr` hard-
+# coded to `:name`. When you invoke this new action type, you only
+# need to provide the value.
+SetName = SetAttribute[:name]
+
+# This action is a further specialization where we know both the
+# attribute *and* the value. You don't need to provide any values.
+ClearName = SetName[nil]
+```
+
+These are all equivalent action invocations:
+
+```ruby
+SetAttribute.call :name, nil
+SetAttribute[:name].call nil
+SetAttribute[:name, nil].call
+SetName.call nil
+ClearName.call
+```
+
+#### Using with Clearwater
+
+Because of action currying, we can set action types as event handlers in Clearwater components. GrandCentral even knows how to handle `Bowser::Event` objects whose targets are instances of `Bowser::Element` (Clearwater uses Bowser as its DOM abstraction). So if you set an action to handle toggling a checkbox, the last argument will contain the input's `checked` property; if you use it for a text box, the last argument will be the `value` property. It'll even prevent `form` submission for you:
+
+```ruby
+ToggleTodo = Action.with_attributes(:todo, :complete)
+
+class TodoList
+  include Clearwater::Component
+  
+  def initialize(todos, new_description)
+    @todos = todos
+    @new_description = new_description
+  end
+  
+  def render
+    div([
+      # When we submit this form, we fire an AddTodo with the description set to @new_description
+      form({ onsubmit: AddTodo[@new_description] }, [
+        input(oninput: SetNewTodoDescription, value: @new_description),
+        button('Add'),
+      ]),
+      ul(todos.map { |todo|
+        li([
+          input(type: :checkbox, onchange: ToggleTodo[todo]),
+          todo.description,
+          button({ onclick: DeleteTodo[todo] }, '✖️'),
+        ])
+      }),
+    ])
+  end
+```
+
 ### Performing actions on dispatch
 
 You may want your application to do something in response to a dispatch. For example, in a Clearwater app, you might want to re-render the application when the store's state has changed:
