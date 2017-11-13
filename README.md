@@ -146,7 +146,10 @@ ClearName.call
 Because of action currying, we can set action types as event handlers in Clearwater components. GrandCentral even knows how to handle `Bowser::Event` objects whose targets are instances of `Bowser::Element` (Clearwater uses Bowser as its DOM abstraction). So if you set an action to handle toggling a checkbox, the last argument will contain the input's `checked` property; if you use it for a text box, the last argument will be the `value` property. It'll even prevent `form` submission for you:
 
 ```ruby
+AddTodo = Action.with_attributes(:description)
+SetNewTodoDescription = Action.with_attributes(:description)
 ToggleTodo = Action.with_attributes(:todo, :complete)
+DeleteTodo = Action.with_attributes(:todo)
 
 class TodoList
   include Clearwater::Component
@@ -158,8 +161,9 @@ class TodoList
   
   def render
     div([
-      # When we submit this form, we fire an AddTodo with the description set to @new_description
+      # All arguments are provided to the AddTodo action, but we still delay its invocation
       form({ onsubmit: AddTodo[@new_description] }, [
+        # We omit the description from SetNewTodoDescription - it's inferred from the input event
         input(oninput: SetNewTodoDescription, value: @new_description),
         button('Add'),
       ]),
