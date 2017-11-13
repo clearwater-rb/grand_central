@@ -189,12 +189,37 @@ end
 
 app = Clearwater::Application.new(component: Layout.new)
 
-store.on_dispatch do |old_state, new_state|
-  app.render unless old_state.equal?(new_state)
+# on_dispatch yields the state before and after the dispatch as well as the action
+store.on_dispatch do |before, after, action|
+  app.render unless before.equal?(after)
 end
 ```
 
-Notice the `unless old_state.equal?(new_state)` clause. This is one of the reasons we recommend you update state by returning a new value instead of mutating it in-place. It allows you to do cache invalidation in O(1) time.
+Notice the `unless before.equal?(after)` clause. This is one of the reasons we recommend you update state by returning a new value instead of mutating it in-place. It allows you to do cache invalidation in O(1) time.
+
+Using `on_dispatch` also useful if you want to consolidate all of your side effects:
+
+```ruby
+FetchUsers = Action.create do
+  def request
+    Bowser::HTTP.fetch('/api/users')
+  end
+end
+LoadUsers = Action.with_attributes(:json) do
+  def users
+    json[:users].map { |attrs| User.new(attrs) }
+  end
+end
+
+store.on_dispatch do |before, after, action|
+  case action
+  when FetchUsers
+    action.request
+      .then(&:json)
+      .then(&LoadUsers)
+  end
+end
+```
 
 ## Models
 
