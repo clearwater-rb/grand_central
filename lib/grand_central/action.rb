@@ -72,7 +72,7 @@ module GrandCentral
 
       def call *args
         if store.nil?
-          raise ArgumentError, "No store set for #{action_class}"
+          raise ArgumentError, "No store set for #@action_class"
         end
 
         store.dispatch @action_class.new(*handle_bowser_event(@args + args))
