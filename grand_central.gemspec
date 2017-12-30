@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Jamie Gaskins"]
   spec.email         = ["jgaskins@gmail.com"]
 
-  spec.summary       = %q{State and action management for Opal apps}
+  spec.summary       = %q{State and action management for Ruby apps}
   spec.homepage      = "https://github.com/clearwater-rb/grand_central"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
