@@ -25,5 +25,8 @@ module GrandCentral
         callback.call old_state, new_state, action
       end
     end
+
+    attr_writer :reducer
+    alias handler= reducer=
   end
 end

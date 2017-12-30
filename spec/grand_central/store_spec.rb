@@ -60,5 +60,17 @@ module GrandCentral
       store = Store.new(1) {}
       expect(store.dispatch(:thing)).to eq :thing
     end
+
+    it 'can have its handler changed' do
+      store = Store.new(1) { |state| state + 1 }
+      store.dispatch :omg
+
+      expect(store.state).to eq 2
+
+      store.handler = proc { |state| state - 1 }
+      store.dispatch :omg
+
+      expect(store.state).to eq 1
+    end
   end
 end
