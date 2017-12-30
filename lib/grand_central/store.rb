@@ -4,7 +4,8 @@ module GrandCentral
 
     def initialize initial_state, &reducer
       @state = initial_state
-      @reducer = reducer
+      @reducer = reducer || proc { |state| state }
+      @tagged_callbacks = {}
       @dispatch_callbacks = []
     end
 
@@ -15,7 +16,13 @@ module GrandCentral
       action
     end
 
-    def on_dispatch &block
+    def on_dispatch tag=nil, &block
+      if tag
+        current = @tagged_callbacks[tag]
+        @dispatch_callbacks.delete current if current
+      end
+
+      @tagged_callbacks[tag] = block
       @dispatch_callbacks << block
       self
     end

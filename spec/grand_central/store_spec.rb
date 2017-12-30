@@ -72,5 +72,19 @@ module GrandCentral
 
       expect(store.state).to eq 1
     end
+
+    it 'can give an on_dispatch hook a unique tag' do
+      store = Store.new(nil)
+      x = 0
+
+      # The tag is unique, so it will be overwritten on subsequent calls and
+      # only the second one of these should run.
+      store.on_dispatch(:foo) { raise 'hell' }
+      store.on_dispatch(:foo) { x += 2 }
+
+      store.dispatch :butts
+
+      expect(x).to eq 2
+    end
   end
 end
