@@ -7,6 +7,10 @@ module GrandCentral
           instance_variable_set "@#{attribute}", args[index]
         end
       end
+      define_singleton_method :fork do
+        with_attributes *attributes, &body
+      end
+
       klass.send :attr_reader, *attributes
       klass.class_exec &body if block_given?
 
