@@ -17,6 +17,16 @@ module GrandCentral
       with_attributes &block
     end
 
+    def self.with_keyword_attributes *attributes, &body
+      Class.new(with_attributes *attributes, &body).tap do |klass|
+        klass.send :define_method, :initialize do |**values|
+          attributes.each do |attr|
+            instance_variable_set "@#{attr}", values[attr]
+          end
+        end
+      end
+    end
+
     def then &block
       promise.then &block
     end
