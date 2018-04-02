@@ -30,14 +30,13 @@ module GrandCentral
     end
 
     def update attributes={}
-      old_attributes = to_h
-      new_attributes = old_attributes.merge(attributes)
+      return self if attributes.all? { |key, value| respond_to?(key) && send(key) == value }
 
-      if new_attributes == old_attributes
-        self
-      else
-        self.class.new(new_attributes)
+      new_attrs = self.class.attributes.each_with_object({}) do |attr, hash|
+        hash[attr] = attributes.fetch(attr) { send(attr) }
       end
+
+      self.class.new(new_attrs)
     end
 
     def to_h
