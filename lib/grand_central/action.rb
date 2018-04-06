@@ -102,7 +102,7 @@ module GrandCentral
             event = arg
 
             case event.type
-            when 'submit'
+            when 'submit', 'dragover'
               # We're modifying a value we received, which is usually a no-no, but
               # in this case it's the most pragmatic solution I can think of.
               event.prevent
