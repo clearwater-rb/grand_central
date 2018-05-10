@@ -137,5 +137,17 @@ module GrandCentral
 
       expect(store.state).to eq [1, 2, 3]
     end
+
+    it 'can be forked into a new action with the same attributes' do
+      klass = Action.with_attributes(:foo, :bar)
+      forked = klass.fork
+
+      expect(forked).not_to be klass
+      expect(forked.superclass).to be klass
+
+      action = forked.new(1, 2)
+      expect(action.foo).to eq 1
+      expect(action.bar).to eq 2
+    end
   end
 end
