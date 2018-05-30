@@ -137,5 +137,13 @@ module GrandCentral
 
       expect(store.state).to eq [1, 2, 3]
     end
+
+    it 'can accept keyword attributes' do
+      klass = Action.with_keyword_attributes(:foo, :bar)
+      action = klass.new(foo: 1, bar: 2)
+
+      expect(action.foo).to eq 1
+      expect(action.bar).to eq 2
+    end
   end
 end

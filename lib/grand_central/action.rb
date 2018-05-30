@@ -3,8 +3,23 @@ module GrandCentral
     def self.with_attributes *attributes, &body
       klass = Class.new(self)
       klass.send :define_method, :initialize do |*args|
-        attributes.each_with_index do |attribute, index|
-          instance_variable_set "@#{attribute}", args[index]
+        case args.first
+        when Hash
+          hash = args.first
+
+          if attributes.all? { |key| hash.include? key }
+            attributes.each do |attr|
+              instance_variable_set "@#{attr}", hash[attr]
+            end
+          else
+            attributes.each_with_index do |attribute, index|
+              instance_variable_set "@#{attribute}", args[index]
+            end
+          end
+        else
+          attributes.each_with_index do |attribute, index|
+            instance_variable_set "@#{attribute}", args[index]
+          end
         end
       end
       klass.send :attr_reader, *attributes
@@ -15,6 +30,16 @@ module GrandCentral
 
     def self.create &block
       with_attributes &block
+    end
+
+    def self.with_keyword_attributes *attributes, &body
+      Class.new(with_attributes *attributes, &body).tap do |klass|
+        klass.send :define_method, :initialize do |**values|
+          attributes.each do |attr|
+            instance_variable_set "@#{attr}", values[attr]
+          end
+        end
+      end
     end
 
     def then &block
